@@ -1,0 +1,33 @@
+Arch:✓
+	pytorch ✓
+	
+
+	
+Tasks:
+	passiv:IMG_1.png
+		1_✓
+		2_
+		3_YOLO
+		4_
+		5_
+	Active:
+		1_
+		2_✓ haarcascade 
+
+_______________________________
+
+Apply to all:
+	
+	1_Lion Activation Function
+	
+	criterion => Adam
+_______________________________
+Pre-phase:
+2/7
+6
+
+Main-phase:100 
+
+40 => Data cleaning - prepare
+30 => Train Model
+30 => Hyperparameter tuning
