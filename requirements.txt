@@ -1,4 +1,5 @@
 numpy
+opencv-python
 pandas
 python-dateutil
 pytz
@@ -11,5 +12,4 @@ Pillow
 tensorboardX
 gdown 
 mediapipe
-opencv-python
 tensorflow
