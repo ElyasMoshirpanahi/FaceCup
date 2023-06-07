@@ -5,8 +5,8 @@ pytz
 six
 easydict
 tqdm
-torchvision
-torch
+torch  --index-url https://download.pytorch.org/whl/cu118
+torchvision  --index-url https://download.pytorch.org/whl/cu118
 opencv_python
 Pillow
 tensorboardX
