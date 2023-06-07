@@ -466,6 +466,8 @@ def main(source=0,tfps = 3, mp_face_mesh=mp_face_mesh,
                     text = "MOUTH OPEN:5"
                     new_movement=5
                     
+
+                #SKIP 2 or 3 Seconds 60 -> 90:TO AVOID ERRORs
                 else:
                     text="FORWARD,CENTER"
                     new_movement = 0

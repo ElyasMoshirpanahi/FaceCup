@@ -1,5 +1,10 @@
 ./.git/
 .git/
+
+input/
+models/occlusion_detection_model.h5
+output/
+
 __pycache__/
 # Windows thumbnail cache files
 Thumbs.db
