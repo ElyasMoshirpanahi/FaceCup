@@ -3,10 +3,10 @@ pandas
 python-dateutil
 pytz
 six
-easydict==1.9
-tqdm==4.31.1
-torchvision==0.4.0
-torch==1.2.0
-opencv_python==4.2.0.34
-Pillow==7.1.2
-tensorboardX==2.0
+easydict
+tqdm
+torchvision
+torch
+opencv_python
+Pillow
+tensorboardX
