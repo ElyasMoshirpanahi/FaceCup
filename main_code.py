@@ -2,6 +2,7 @@ import numpy as np
 import video_process
 import pandas as pd
 import os
+from datetime import datetime as dt
 # from Merged_tasks import main
 import time
 
@@ -18,12 +19,12 @@ i=0
 
 for video_name in data:
     tic = time.time()
-    print(f"Time started for video {tic}")
+    print(f"Time started for video {dt.today()}")
     # You should implement the video processing code in this section
     feature[i, :]=video_process.process(video_name)
     # main
     i = i + 1
-    print(f"Time to process vidoe {video_name} was {time.time() - tic}")
+    print(f"Time to process video {video_name} was {time.time() - tic}")
 
 
     

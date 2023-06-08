@@ -146,7 +146,7 @@ def detect(videoname):
     real                = []
     spoof_dict = {}
 
-
+    new_movement   = None
     prev_movement  = None
     label          = None
     allow_draw     = None
@@ -201,7 +201,7 @@ def detect(videoname):
         if check_spoof:
             if  index < spoof_frame_threshold:
                 # Preprocess the image
-                image_bbox = spoof_model.get_bbox(image)
+                image_bbox = spoof_model.get_bbox(frame)
                 prediction = np.zeros((1, 3))
                 test_speed = 0
 
@@ -209,12 +209,12 @@ def detect(videoname):
                 # Perform prediction using each model
                 for model_name in os.listdir(model_dir):
                     h_input, w_input, model_type, scale = parse_model_name(model_name)
-                    img = preprocess_frame(image, image_cropper, image_bbox, h_input, w_input, scale)
+                    img = preprocess_frame(frame, image_cropper, image_bbox, h_input, w_input, scale)
                     start = time.time()
                     prediction += spoof_model.predict(img, os.path.join(model_dir, model_name))
                     test_speed += time.time() - start
 
-                # Draw the prediction result on the image
+                # Draw the prediction result on the frame
                 label = np.argmax(prediction)
                 value = prediction[0][label] / 2
 
@@ -277,204 +277,211 @@ def detect(videoname):
         
 
 
-        #Video isn't spoof so we continue to do other tasks
-        elif check_spoof == False and skip_video == False:
-            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
+            
 ########################################### Head and Mouth Rotation #######################################|TODO:2
-            results = face_mesh.process(frame_rgb)
-            if results.multi_face_landmarks:
-                for face_landmarks in results.multi_face_landmarks:        
-                    for idx , lm in enumerate(face_landmarks.landmark):
-                        if idx == 33 or idx ==263 or idx ==1 or idx==61 or idx ==291 or idx ==199:
-                            if idx ==1:
-                                nose_2d = (lm.x * img_w, lm.y * img_h)
-                                nose_3d = (lm.x * img_w, lm.y * img_h,lm.z *3000)
-                            
-                            if idx >= 290:
-                                if lm.y * img_h > face_2d[1][1]:
-                                    mouth_open = True
-                            x,y = int(lm.x * img_w) , int(lm.y * img_h)
+        #Video isn't spoof so we continue to do other tasks
+    
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        results = face_mesh.process(frame_rgb)
 
-                            face_2d.append([x,y])
 
-                            face_3d.append([x,y,lm.z])
+        img_h , img_w , img_c = frame_rgb.shape
+        face_3d = []
+        face_2d = []
+        if results.multi_face_landmarks:
+            for face_landmarks in results.multi_face_landmarks:        
+                for idx , lm in enumerate(face_landmarks.landmark):
+                    if idx == 33 or idx ==263 or idx ==1 or idx==61 or idx ==291 or idx ==199:
+                        if idx ==1:
+                            nose_2d = (lm.x * img_w, lm.y * img_h)
+                            nose_3d = (lm.x * img_w, lm.y * img_h,lm.z *3000)
                         
-                    face_2d = np.array(face_2d , dtype=np.float64)
-                    face_3d = np.array(face_3d , dtype=np.float64)
+                        if idx >= 290:
+                            if lm.y * img_h > face_2d[1][1]:
+                                mouth_open = True
+                        x,y = int(lm.x * img_w) , int(lm.y * img_h)
 
+                        face_2d.append([x,y])
 
-                    focal_length = 1 * img_w
-
-
-                    cam_matrix = np.array([  [focal_length,0,img_h/2],
-                                             [0,focal_length,img_w/2],
-                                             [0,0,1]])
-
-                    dist_matrix = np.zeros((4,1),dtype = np.float64)
-
-
-                    success , rot_vec , trans_vec  = cv2.solvePnP(face_3d,face_2d,cam_matrix,dist_matrix)
-
-
-                    rmat,jac = cv2.Rodrigues(rot_vec)
-
-
-                    angels , mtxR , mtxQ , Qx ,Qy , Qz = cv2.RQDecomp3x3(rmat)
-
-
-                    x= angels[0] * 360
-                    y= angels[1] * 360
-                    z= angels[2] * 360
+                        face_3d.append([x,y,lm.z])
                     
+                face_2d = np.array(face_2d , dtype=np.float64)
+                face_3d = np.array(face_3d , dtype=np.float64)
+
+
+                focal_length = 1 * img_w
+
+
+                cam_matrix = np.array([  [focal_length,0,img_h/2],
+                                         [0,focal_length,img_w/2],
+                                         [0,0,1]])
+
+                dist_matrix = np.zeros((4,1),dtype = np.float64)
+
+
+                success , rot_vec , trans_vec  = cv2.solvePnP(face_3d,face_2d,cam_matrix,dist_matrix)
+
+
+                rmat,jac = cv2.Rodrigues(rot_vec)
+
+
+                angels , mtxR , mtxQ , Qx ,Qy , Qz = cv2.RQDecomp3x3(rmat)
+
+
+                x= angels[0] * 360
+                y= angels[1] * 360
+                z= angels[2] * 360
+                
+                
+                # Access lip landmarks
+                upper_lip_bottom = face_landmarks.landmark[13].y
+                lower_lip_top = face_landmarks.landmark[14].y
+                
+                # Calculate the distance between upper lip bottom and lower lip top landmarks
+                distance = lower_lip_top - upper_lip_bottom
+
+                print(new_movement)
+                #Face rotation thresholds
+                if x >20:
+                    text="UP:6"
+                    new_movement = 6
+                     
+                elif x < -15:
+                    text="DOWN:7"
+                    new_movement = 7
+                           
+                elif y < -14:
+                    text="LEFT:8"
+                    new_movement = 8
                     
-                    # Access lip landmarks
-                    upper_lip_bottom = face_landmarks.landmark[13].y
-                    lower_lip_top = face_landmarks.landmark[14].y
+                elif y > 14:
+                    text="RIGHT:9"
+                    new_movement = 9
                     
-                    # Calculate the distance between upper lip bottom and lower lip top landmarks
-                    distance = lower_lip_top - upper_lip_bottom
+                # Determine if the mouth is open or closed based on the distance
+                elif distance > 0.02:  # Adjust this threshold for your specific use case
+                    text = "MOUTH OPEN:5"
+                    new_movement=5
+                
 
+                #SKIP 2 or 3 Seconds 60 -> 90:TO AVOID ERRORs
+                else:
+                    text="FORWARD,CENTER"
 
-                    #Face rotation thresholds
-                    if x >20:
-                        text="UP:6"
-                        new_movement = 6
-                         
-                    elif x < -20:
-                        text="DOWN:7"
-                        new_movement = 7
-                               
-                    elif y < -15:
-                        text="LEFT:8"
-                        new_movement = 8
-                        
-                    elif y > 15:
-                        text="RIGHT:9"
-                        new_movement = 9
-                        
-                    # Determine if the mouth is open or closed based on the distance
-                    elif distance > 0.05:  # Adjust this threshold for your specific use case
-                        text = "MOUTH OPEN:5"
-                        new_movement=5
-                    
+                
 
-                    #SKIP 2 or 3 Seconds 60 -> 90:TO AVOID ERRORs
-                    else:
-                        text="FORWARD,CENTER"
-
-                        #OTHER OPERATIONS GO HERE!
+                    #OTHER OPERATIONS GO HERE!
 
 ############################################ multiface & multi id #########################################
-                        # Convert frame to RGB
-                        #frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                        # Detect faces in frame
-                        boxes, _ = mtcnn.detect(frame_rgb)
-                        if boxes is not None:
-                            multi_face_result.append(len(boxes))
+                # Convert frame to RGB
+                #frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                # Detect faces in frame
+                boxes, _ = mtcnn.detect(frame_rgb)
+                if boxes is not None:
+                    multi_face_result.append(len(boxes))
 
-                        # Loop through detected faces
-                        if boxes is not None:
-                            for box in boxes:
-                                # Extract face from frame
-                                face = F.to_tensor(frame_rgb[int(box[1]):int(box[3]), int(box[0]):int(box[2])])
-                                if (face.shape[1] >= 160 & face.shape[2] >= 160):
-                                    face = F.resize(face, (160, 160))
+                # Loop through detected faces
+                if boxes is not None:
+                    for box in boxes:
+                        # Extract face from frame
+                        face = F.to_tensor(frame_rgb[int(box[1]):int(box[3]), int(box[0]):int(box[2])])
+                        if (face.shape[1] >= 160 & face.shape[2] >= 160):
+                            face = F.resize(face, (160, 160))
 
-                                    face = torch.unsqueeze(face, dim=0).float()
-                                    # Normalize face
-                                    face = (face - 127.5) / 128.0
-                                    face = face.cuda()
+                            face = torch.unsqueeze(face, dim=0).float()
+                            # Normalize face
+                            face = (face - 127.5) / 128.0
+                            face = face.cuda()
 
-                                    # Calculate face embeddings using InceptionResnetV1 model
-                                    embeddings = resnet(face)
+                            # Calculate face embeddings using InceptionResnetV1 model
+                            embeddings = resnet(face)
 
-                                    # Convert embeddings to numpy array
-                                    embeddings_np = embeddings.detach().cpu().numpy()
+                            # Convert embeddings to numpy array
+                            embeddings_np = embeddings.detach().cpu().numpy()
 
-                                    # Convert embeddings to string
-                                    embeddings_str = embeddings_np.tostring()
+                            # Convert embeddings to string
+                            embeddings_str = embeddings_np.tostring()
 
-                                    # Calculate face ID based on embeddings
-                                    face_id = hash(embeddings_str)
+                            # Calculate face ID based on embeddings
+                            face_id = hash(embeddings_str)
 
-                                    # Check if face ID is new
-                                    if face_id not in face_ids:
-                                        # Add face ID to set
-                                        face_ids.add(face_id)
+                            # Check if face ID is new
+                            if face_id not in face_ids:
+                                # Add face ID to set
+                                face_ids.add(face_id)
 
 ############################################### mask detection ############################################
-                        # Preprocess frame
-                        frame = frame_rgb #cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                        frame = cv2.resize(frame, (224, 224))
-                        frame = preprocess_input(frame)
+                # Preprocess frame
+                frame = frame_rgb #cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                frame = cv2.resize(frame, (224, 224))
+                frame = preprocess_input(frame)
 
-                        # Predict mask probability
-                        pred = model.predict(np.expand_dims(frame, axis=0))[0]
-                        mask_prob = pred[0]
-                        no_mask_prob = pred[1]
+                # Predict mask probability
+                pred = model.predict(np.expand_dims(frame, axis=0),verbose=None)[0]#,verbose=None
+                mask_prob = pred[0]
+                no_mask_prob = pred[1]
 
-                        # Check if wearing a mask
-                        if mask_prob > no_mask_prob:
-                            mask_count += 1
+                # Check if wearing a mask
+                if mask_prob > no_mask_prob:
+                    mask_count += 1
 
 ################################################# sunglasses ##############################################
-                        faces = face_cascade.detectMultiScale(frame_rgb, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+                faces = face_cascade.detectMultiScale(frame_rgb, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
 
-                        # Loop through detected faces
-                        for (x, y, w, h) in faces:
-                        # Extract face region of interest
-                            face_roi = frame_rgb[y:y + h, x:x + w]
+                # Loop through detected faces
+                for (x, y, w, h) in faces:
+                # Extract face region of interest
+                    face_roi = frame_rgb[y:y + h, x:x + w]
 
-                        # Detect eyes in face region
-                            eyes = eye_cascade.detectMultiScale(face_roi, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+                # Detect eyes in face region
+                    eyes = eye_cascade.detectMultiScale(face_roi, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
 
-                        # Check if wearing glasses
-                        if len(eyes) >= 2:
-                            glasses_count += 1
+                # Check if wearing glasses
+                if len(eyes) >= 2:
+                    glasses_count += 1
 
-                        for item in multi_face_result:
-                            if item > 1:
-                                final_result[1]=1
-                            else:
-                                final_result[1]=0
-                                
+                for item in multi_face_result:
+                    if item > 1:
+                        final_result[1]=1
+                    else:
+                        final_result[1]=0
+                        
 
-                        if len(face_ids)>1:
-                            final_result[3]=1
-                        else:
-                            final_result[3]=0
+                if len(face_ids)>1:
+                    final_result[3]=1
+                else:
+                    final_result[3]=0
 
-                        # acculotion
-                        if mask_count>0 and glasses_count>0:
-                            final_result[2]=1
-
-
-
-                            
+                # acculotion
+                if mask_count>0 and glasses_count>0:
+                    final_result[2]=1
 
 
-                #######
-                #logic -> if previous movement and new movements aren't same
-                #######
-                if new_movement != prev_movement and len(detected_movements) <= 15:
+
+                        
 
 
-                    final_result[movement_index] = new_movement
-                    detected_movements.append(new_movement)
-                    movement_index += 1
-                    
-                    #print("Movement : ",text)
-                    
-                    prev_movement=new_movement
+            #######
+            #logic -> if previous movement and new movements aren't same
+            #######
+            if new_movement and  new_movement != prev_movement and len(detected_movements) <=15:
+
+
+                final_result[movement_index] = new_movement
+                detected_movements.append(new_movement)
+                movement_index += 1
+                
+                #print("Movement : ",text)
+                
+                prev_movement=new_movement
 
 ################################################### Output ###############################################
     #final_result[0:3] -> Spoof [0], multi_face[1],acculotion[2],multi_id[3]
 
     #final_result[3:19] -> movements
 
-
-    spoof       = final_result[0]   
+    spoof       = round(final_result[0]) 
     multi_face  = final_result[1]
     acculotion  = final_result[2]
     multi_id    = final_result[3]
@@ -482,7 +489,7 @@ def detect(videoname):
 
 
 
-    pritn(f"""
+    print(f"""
     ====================={videoname}====================
     spoof {spoof}
 
