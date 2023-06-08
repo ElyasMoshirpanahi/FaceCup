@@ -3,7 +3,7 @@ ENV PYTHONUNBUFFERED=1
 
 RUN rm -rf /tmp/FaceCup
 RUN apt-get update && apt-get install -y git 
-RUN  apt-get install libgl1-mesa-glx
+#RUN  apt-get install libgl1-mesa-glx
 
 RUN git clone https://github.com/ElyasMoshirpanahi/FaceCup.git /tmp/FaceCup
 
