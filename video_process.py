@@ -422,16 +422,16 @@ def detect(videoname):
                         faces = face_cascade.detectMultiScale(frame_rgb, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
 
                         # Loop through detected faces
-                            for (x, y, w, h) in faces:
-                            # Extract face region of interest
-                                face_roi = frame_rgb[y:y + h, x:x + w]
+                        for (x, y, w, h) in faces:
+                        # Extract face region of interest
+                            face_roi = frame_rgb[y:y + h, x:x + w]
 
-                            # Detect eyes in face region
-                                eyes = eye_cascade.detectMultiScale(face_roi, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+                        # Detect eyes in face region
+                            eyes = eye_cascade.detectMultiScale(face_roi, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
 
-                            # Check if wearing glasses
-                                if len(eyes) >= 2:
-                                glasses_count += 1
+                        # Check if wearing glasses
+                        if len(eyes) >= 2:
+                            glasses_count += 1
 
                         for item in multi_face_result:
                             if item > 1:
