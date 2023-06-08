@@ -20,7 +20,7 @@ for video_name in data:
     tic = time.time()
     print(f"Time started for video {tic}")
     # You should implement the video processing code in this section
-    feature[i, :]=video_process.main(video_name)
+    feature[i, :]=video_process.process(video_name)
     # main
     i = i + 1
     print(f"Time to process vidoe {video_name} was {time.time() - tic}")
