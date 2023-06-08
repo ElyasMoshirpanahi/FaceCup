@@ -1,5 +1,10 @@
 <img src='[](https://facecup.ir/wp-content/uploads/2022/12/Face-Cup_Animation_1.gif)'>
 
+
+#Need 2 files from google drive copied to models folder to run properly!
+#File 1 :
+#File 2 :
+
 # Face cup competetion 2023
 
 ![alt text](https://mms.businesswire.com/media/20210406005123/en/869329/5/AdobeStock_397652837_IDEMIA_light.jpg)

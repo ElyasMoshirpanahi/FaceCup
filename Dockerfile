@@ -17,7 +17,13 @@ RUN mv /tmp/FaceCup/* /liveness/
 
 RUN pip --timeout=1000 install --no-cache-dir gdown
 
-RUN gdown  10EKrw08j1o8pWXWGXVMnyqbsrpKrjDsz -O /liveness/models/occlusion_detection_model.h5
+
+#Downloading pre-trained model to models folder
+#VGG.pt
+RUN gdown  1kHaEqYoV_V8jG-fwOeo48h68nS0CSDMl -O /liveness/models/vggface2.pt
+
+#Model.h5
+RUN gdown  1VijRF3CZhRHTd0ea8U4ZsxIkUMlZWmUX -O /liveness/models/model.h5
 
 WORKDIR /liveness
 
