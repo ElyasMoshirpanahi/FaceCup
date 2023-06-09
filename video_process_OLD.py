@@ -175,8 +175,8 @@ def main(source=0,tfps = 3, mp_face_mesh=mp_face_mesh,
    #------------------------ Variables ----------------------#
 
 
-    index     = 0
-    counter   = 0
+    index               = 0
+    counter             = 0
     times_OCC_checked   = 0
 
 

@@ -28,8 +28,6 @@ from facenet_pytorch import MTCNN,InceptionResnetV1
 
 warnings.filterwarnings('ignore')
 
-#print("Avaibllity of cuda is : - >>>>>>>>>>>>   ",torch.cuda.is_available())
-
 
 
 
@@ -38,11 +36,6 @@ warnings.filterwarnings('ignore')
 #---------------------------- Constatns ----------------------------#
 #Number of GPUS for Pytorch
 device_id = 0
-availble_device = ('cuda' if torch.cuda.is_available() else 'cpu')
-frame_rate = 10
-
-spoof_frame_threshold=15
-
 
 
 #-------------------- Face Mesh/Detection  cv2 cascades setup --------------------#
@@ -78,10 +71,9 @@ model_dir="./models/anti_spoof_models"
 
 
 mtcnn = MTCNN()
-resnet = InceptionResnetV1(pretrained='vggface2',device=availble_device).eval()
+resnet = InceptionResnetV1(pretrained='vggface2').eval()#Same person
 face_ids = set()
-model = load_model('./models/model.h5')
-
+model = load_model('./models/model.h5')#Check mask
 
 #=====================================Functions===============================#
 #Function  to preprocess the frame for spoof
@@ -122,10 +114,9 @@ def majority_vote(occluded, no_occluded):
 
 def detect(videoname,verbose=False):
     tic = time.time()
-    if verbose:
-        print(f"Time started for video {videoname} at {dt.today()}")
 
 
+ ################################################# Varibles ###############################################
     # Initialize variables
     index               = 0
     mask_count          = 0
@@ -134,9 +125,12 @@ def detect(videoname,verbose=False):
     count               = 0
     movement_counter    = 0
     movement_index      = 4
+    threshold           = 0.6
+    frame_rate          = 10
 
-
-
+    spoof_frame_threshold     = 10
+    occlusion_frame_threshold = 5
+    occlusion_frame           = 0
 
 
     total_result        = []
@@ -147,15 +141,20 @@ def detect(videoname,verbose=False):
     real                = []
     spoof_dict = {}
 
-    new_movement   = None
-    prev_movement  = None
-    label          = None
-    allow_draw     = None
-    face_landmarks = None
-    spoof_final    = None
-
+    eyes                    = None
+    new_movement            = None
+    prev_movement           = None
+    label                   = None
+    allow_draw              = None
+    face_landmarks          = None
+    spoof_final             = None
+    previous_face_encodings = None
+    
     check_spoof      = True
     check_occlussion = True
+
+    multi_checked    = False
+    occlusion_check  = False
     skip_video       = False
 
 
@@ -187,7 +186,6 @@ def detect(videoname,verbose=False):
         #if frame rate wasn't desired 
         if count % frame_rate != 0:
             continue
-
         #Video was spoof and no lognger check for stuff!
         if skip_video ==True:
 
@@ -196,7 +194,7 @@ def detect(videoname,verbose=False):
             break
             #all other tasks remain  0 -> multi_face,acculotion,multi_id
             #return  final_result
-
+ 
  ############################################## spoof detect ##############################################|TODO:1
         if check_spoof:
             if  index < spoof_frame_threshold:
@@ -369,13 +367,14 @@ def detect(videoname,verbose=False):
                     #OTHER OPERATIONS GO HERE!
  ########################################### multiface & multi id #########################################
                 # Convert frame to RGB
-                #frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 # Detect faces in frame
                 boxes, _ = mtcnn.detect(frame_rgb)
                 if boxes is not None:
                     multi_face_result.append(len(boxes))
 
-                # Loop through detected faces
+
+                # # Loop through detected faces
                 if boxes is not None:
                     for box in boxes:
                         # Extract face from frame
@@ -405,6 +404,53 @@ def detect(videoname,verbose=False):
                                 # Add face ID to set
                                 face_ids.add(face_id)
  ############################################# Occlusion #################################################|TODO:Test my model
+  ####################################   keras inception resnet model   ###################################
+                # frame = frame_rgb
+
+
+                # if occlusion_check == False and occlusion_frame_threshold > occlusion_frame:
+                #     #print("==========================CHECKING FOR OCCLUSION================================")
+
+                #     face_detection_results = face_detection.process(frame)
+                #     detection = face_detection_results.detections[0]
+                #     ih, iw, _ = frame.shape
+                #     boxR = detection.location_data.relative_bounding_box
+                #     # Get Absolute Bounding Box Positions
+                #     # (startX, startY) - Top Left Corner of Bounding Box
+                #     # (endX, endY)     - Bottom Right Corner of Bounding Box
+                #     (startX, startY, endX, endY) = (boxR.xmin, boxR.ymin, boxR.width, boxR.height) * np.array([iw, ih, iw, ih])
+                #     startX = max(0, int(startX))
+                #     startY = max(0, int(startY))
+                #     endX = min(iw - 1, int(startX + endX))
+                #     endY = min(ih - 1, int(startY + endY))
+
+                #     # Extract the face from the RGB Frame to pass into Mask Detection Model
+                #     face = frame[startY:endY, startX:endX]
+                #     face = cv2.resize(face, (224, 224))
+                #     face = img_to_array(face)
+                #     face = preprocess_input(face)
+                #     face = np.array([face], dtype='float32')
+
+                #     # Predict Mask or No Mask on the extracted RGB Face
+                #     preds = occlusion_detection_model.predict(face, batch_size=32,verbose=None)[0][0]
+                #     occlusion_frame = occlusion_frame+1
+                #     if preds >0.5:
+                #         final_result[3]=1
+                #         occlusion_check = True
+                    #label = "No Occlusion" if preds < 0.5 else "Occluded"
+                    # percentage = (1 - preds)  if label == "No Occlusion" else preds 
+
+                    # if label =="No Occlusion":
+                    #     no_occlusion.append((1 - preds))
+
+
+                    # else:
+                    #     occlusion.append(preds)
+
+
+
+
+
   ############################################ mask detection ############################################
                 # Preprocess frame
                 frame = frame_rgb #cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -431,23 +477,25 @@ def detect(videoname,verbose=False):
                 # Detect eyes in face region
                     eyes = eye_cascade.detectMultiScale(face_roi, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
 
-                # Check if wearing glasses
-                if len(eyes) >= 2:
-                    glasses_count += 1
+                    # Check if wearing glasses
+                    if len(eyes) >= 2:
+                        glasses_count += 1
 
+
+                #Multi face
                 for item in multi_face_result:
                     if item > 1:
                         final_result[1]=1
                     else:
                         final_result[1]=0
                         
-
+                #Same person
                 if len(face_ids)>1:
                     final_result[3]=1
                 else:
                     final_result[3]=0
 
-                # acculotion
+                acculotion
                 if mask_count>0 and glasses_count>0:
                     final_result[2]=1
 

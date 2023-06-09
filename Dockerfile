@@ -1,7 +1,7 @@
 FROM tensorflow/tensorflow:2.12.0-gpu
-FROM python:3.8
-ENV PYTHONUNBUFFERED=1
 
+FROM python:3.10
+ENV PYTHONUNBUFFERED=1
 RUN rm -rf /tmp/FaceCup
 
 RUN apt-get update && apt-get install -y git
