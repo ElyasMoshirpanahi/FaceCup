@@ -21,7 +21,7 @@ import os
 import sys
 import random
 import warnings
-
+from time import sleep
 
 #TF Imports
 
@@ -80,7 +80,7 @@ difference_threshold = 0.099
 #------------------------- Spoof model load ------------------------#
 spoof_model = AntiSpoofPredict(device_id)
 image_cropper = CropImage()
-occlusion_detection_model  = load_model(occ_model_path)
+#occlusion_detection_model  = load_model(occ_model_path)
 #-------------------------------------------------------------------#
 
 #======================================================================#
@@ -202,8 +202,8 @@ def main(source=0,tfps = 3, mp_face_mesh=mp_face_mesh,
     allow_draw     = None
     face_landmarks = None
     spoof_final    = None
-
-    check_spoof      = True
+    new_movement  = None
+    check_spoof      = False
     check_occlussion = True
     skip_video       = False #Skip video if spoof! Needs Implementation
 
@@ -448,16 +448,16 @@ def main(source=0,tfps = 3, mp_face_mesh=mp_face_mesh,
                     text="DOWN:7"
                     new_movement=7
                            
-                elif y < -15:
+                elif y < -14:
                     text="LEFT:8"
                     new_movement=8
                     
-                elif y > 15:
+                elif y > 14:
                     text="RIGHT:9"
                     new_movement=9
                     
                 # Determine if the mouth is open or closed based on the distance
-                elif distance > 0.05:  # Adjust this threshold for your specific use case
+                elif distance > 0.02:  # Adjust this threshold for your specific use case
                     text = "MOUTH OPEN:5"
                     new_movement=5
                     
@@ -465,62 +465,62 @@ def main(source=0,tfps = 3, mp_face_mesh=mp_face_mesh,
                 #SKIP 2 or 3 Seconds 60 -> 90:TO AVOID ERRORs
                 else:
                     text="FORWARD,CENTER"
-                    new_movement = 0
+                    #new_movement = 0
 
-
+                sleep(0.35)
                     #Spoof -> 0 1 
                 #######
                 # face occlusion
                 
 
 
-                   #----------------------Occlusion---------------------#
+                   # #----------------------Occlusion---------------------#
 
-                    if counter % 30 == 0 and times_OCC_checked < check_OCC_threshold and check_occlussion:
+                   #  if counter % 30 == 0 and times_OCC_checked < check_OCC_threshold and check_occlussion:
                         
-                        print("==========================CHECKING FOR OCCLUSION================================")
-                        detection = face_detection_results.detections[0]
-                        # Get relative bounding box of that detection            
-                        boxR = detection.location_data.relative_bounding_box
-                        ih, iw, _ = image.shape
+                   #      print("==========================CHECKING FOR OCCLUSION================================")
+                   #      detection = face_detection_results.detections[0]
+                   #      # Get relative bounding box of that detection            
+                   #      boxR = detection.location_data.relative_bounding_box
+                   #      ih, iw, _ = image.shape
 
-                        # Get Absolute Bounding Box Positions
-                        # (startX, startY) - Top Left Corner of Bounding Box
-                        # (endX, endY)     - Bottom Right Corner of Bounding Box
-                        (startX, startY, endX, endY) = (boxR.xmin, boxR.ymin, boxR.width, boxR.height) * np.array([iw, ih, iw, ih])
-                        startX = max(0, int(startX))
-                        startY = max(0, int(startY))
-                        endX = min(iw - 1, int(startX + endX))
-                        endY = min(ih - 1, int(startY + endY))
+                   #      # Get Absolute Bounding Box Positions
+                   #      # (startX, startY) - Top Left Corner of Bounding Box
+                   #      # (endX, endY)     - Bottom Right Corner of Bounding Box
+                   #      (startX, startY, endX, endY) = (boxR.xmin, boxR.ymin, boxR.width, boxR.height) * np.array([iw, ih, iw, ih])
+                   #      startX = max(0, int(startX))
+                   #      startY = max(0, int(startY))
+                   #      endX = min(iw - 1, int(startX + endX))
+                   #      endY = min(ih - 1, int(startY + endY))
 
-                        # Extract the face from the RGB Frame to pass into Mask Detection Model
-                        face = image[startY:endY, startX:endX]
-                        face = cv2.resize(face, (224, 224))
-                        face = img_to_array(face)
-                        face = preprocess_input(face)
-                        face = np.array([face], dtype='float32')
+                   #      # Extract the face from the RGB Frame to pass into Mask Detection Model
+                   #      face = image[startY:endY, startX:endX]
+                   #      face = cv2.resize(face, (224, 224))
+                   #      face = img_to_array(face)
+                   #      face = preprocess_input(face)
+                   #      face = np.array([face], dtype='float32')
 
-                        # Predict Mask or No Mask on the extracted RGB Face
-                        preds = occlusion_detection_model.predict(face, batch_size=32,verbose=None)[0][0]
-                        label = "No Occlusion" if preds < 0.5 else "Occluded"
-                        percentage = (1 - preds)  if label == "No Occlusion" else preds 
+                   #      # Predict Mask or No Mask on the extracted RGB Face
+                   #      preds = occlusion_detection_model.predict(face, batch_size=32,verbose=None)[0][0]
+                   #      label = "No Occlusion" if preds < 0.5 else "Occluded"
+                   #      percentage = (1 - preds)  if label == "No Occlusion" else preds 
 
-                        if label =="No Occlusion":
-                            no_occlusion.append((1 - preds))
-
-
-                        else:
-                            occlusion.append(preds)
+                   #      if label =="No Occlusion":
+                   #          no_occlusion.append((1 - preds))
 
 
-                        times_OCC_checked = times_OCC_checked + 1
+                   #      else:
+                   #          occlusion.append(preds)
 
 
-                    elif  times_OCC_checked > check_OCC_threshold:
-                        check_occlussion = False
-                    else:
-                        times_OCC_checked += 1
-                   #----------------------------------------------------#
+                   #      times_OCC_checked = times_OCC_checked + 1
+
+
+                   #  elif  times_OCC_checked > check_OCC_threshold:
+                   #      check_occlussion = False
+                   #  else:
+                   #      times_OCC_checked += 1
+                   # #----------------------------------------------------#
                 
                 
                 
@@ -553,11 +553,11 @@ def main(source=0,tfps = 3, mp_face_mesh=mp_face_mesh,
      #-------------- Drawing outputs ------------#
         
 
-        # cv2.putText(image,f"FPS {int(fps)}",(20,int(img_h-200)),simple_font,1.5,(0,255,0),2)
+        cv2.putText(image,f"FPS {int(fps)}",(20,int(img_h-200)),simple_font,1.5,(0,255,0),2)
 
 
 
-        # # Spoof probiblity
+        # Spoof probiblity
         # if value: 
         #     cv2.putText(image,result_text,(20,150),complex_font, 0.5 * image.shape[0] / 1024, S_color)
 
@@ -584,27 +584,27 @@ def main(source=0,tfps = 3, mp_face_mesh=mp_face_mesh,
         #     #Detected faces 
         #     cv2.putText(image, f"Number of Faces: {num_faces}", (20,100), simple_font, 0.7, (0, 0, 255), 2)
 
-        # #Face rotation drawings 
-        # if face_landmarks:
-        #     mp_drawing.draw_landmarks(
-        #             image= image,
-        #             landmark_list=face_landmarks,
-        #             connections=mp_face_mesh.FACEMESH_CONTOURS,
-        #             landmark_drawing_spec=drawing_spec,
-        #             connection_drawing_spec=drawing_spec
-        #     )
+        #Face rotation drawings 
+        if face_landmarks:
+            mp_drawing.draw_landmarks(
+                    image= image,
+                    landmark_list=face_landmarks,
+                    connections=mp_face_mesh.FACEMESH_CONTOURS,
+                    landmark_drawing_spec=drawing_spec,
+                    connection_drawing_spec=drawing_spec
+            )
 
             
-        #     cv2.line(image , p1,p2,(255,0,0),3)
-        #     cv2.putText(image,text,(20,50),simple_font , 2,(0,255,0),2)
-        #     cv2.putText(image,"X : "+str(np.round(x,2)) , (img_w-160,50),simple_font ,1,(0,0,255),2)
-        #     cv2.putText(image,"Y : "+str(np.round(y,2)) , (img_w-160,100),simple_font ,1,(0,0,255),2)
-        #     cv2.putText(image,"Z : "+str(np.round(z,2)) , (img_w-160,150),simple_font ,1,(0,0,255),2)
+            cv2.line(image , p1,p2,(255,0,0),3)
+            cv2.putText(image,text,(20,50),simple_font , 2,(0,255,0),2)
+            cv2.putText(image,"X : "+str(np.round(x,2)) , (img_w-160,50),simple_font ,1,(0,0,255),2)
+            cv2.putText(image,"Y : "+str(np.round(y,2)) , (img_w-160,100),simple_font ,1,(0,0,255),2)
+            cv2.putText(image,"Z : "+str(np.round(z,2)) , (img_w-160,150),simple_font ,1,(0,0,255),2)
 
 
 
-        # #Pop the window
-        # cv2.imshow("Retroteam FRVT",image)
+        #Pop the window
+        cv2.imshow("Retroteam FRVT",image)
         if cv2.waitKey(tfps) & 0xFF == ord('q'):#set 27 for Esc key
             break
      #-------------------------------------------#
@@ -629,6 +629,14 @@ def main(source=0,tfps = 3, mp_face_mesh=mp_face_mesh,
     final_result[3] = occ_final
     #------------------------------------------------#
 
-
+    print(detected_movements)
     # print(final_result)
     return final_result
+
+
+from glob import glob as g 
+
+for vid in g("./input/*"):
+    print(vid)
+
+    main(vid)

@@ -2,8 +2,8 @@
 
 
 #Need 2 files from google drive copied to models folder to run properly!
-#File 1 :
-#File 2 :
+<br>
+https://drive.google.com/drive/folders/19TQxvYLXsEQc4dGGAaNslRNz0Y3Esced
 
 # Face cup competetion 2023
 
