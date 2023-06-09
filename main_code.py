@@ -5,7 +5,7 @@ import os
 from datetime import datetime as dt
 # from Merged_tasks import main
 import time
-
+from tqdm import tqdm
 # database address
 input = "./input"
 
@@ -17,14 +17,12 @@ feature=np.zeros((lens,19))
 i=0
 
 
-for video_name in data:
-    tic = time.time()
-    print(f"Time started for video {dt.today()}")
+for video_name in tqdm(data):
+    #print(video_name)
     # You should implement the video processing code in this section
-    feature[i, :]=video_process.process(video_name)
+    feature[i, :]=video_process.process(video_name,verbose=True)
     # main
     i = i + 1
-    print(f"Time to process video {video_name} was {time.time() - tic}")
 
 
     

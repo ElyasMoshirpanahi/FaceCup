@@ -7,7 +7,7 @@ import sys
 import random
 import warnings
 import numpy as np
-
+from datetime import datetime as dt
 
 #Our Imports
 from PIL import Image
@@ -123,8 +123,12 @@ def majority_vote(occluded, no_occluded):
         return 0  # Face is not occluded
 
 
-def detect(videoname):
-    print(videoname)
+def detect(videoname,verbose=False):
+    tic = time.time()
+    if verbose:
+        print(f"Time started for video {videoname} at {dt.today()}")
+
+
     # Initialize variables
     index               = 0
     mask_count          = 0
@@ -488,28 +492,34 @@ def detect(videoname):
     movements   = final_result[4:]
 
 
+    if verbose:
+        print(f"Time to process video {video_name} was {time.time() - tic}")
 
-    print(f"""
-    ====================={videoname}====================
-    spoof {spoof}
+        print(f"""
+        ====================={videoname}====================
 
-    multi_face : { multi_face}
+        Time       : {time.time() - tic} seconds
+        
+        spoof      : {spoof}
 
-    acculotion : {acculotion}
+        multi_face : { multi_face}
 
-    multi_id : {multi_id }
+        acculotion : {acculotion}
 
-    movements: { movements}
-    ===================================================""")
+        multi_id : {multi_id }
+
+        movements: { movements}
+        ===================================================""")
+    
     return (spoof , multi_face , acculotion , multi_id , movements)
 
-def process(videoname):
+def process(videoname,verbose=False):
     result = []
 
     #final_result[0:3] -> Spoof [0], multi_face[1],acculotion[2],multi_id[3]
     #final_result[3:19] -> movements
 
-    spoof , multi_face , acculotion , multi_id , movements =detect(videoname)
+    spoof , multi_face , acculotion , multi_id , movements =detect(videoname,verbose)
     result.append(spoof)     # 0 or 1
     result.append(multi_face)# 0 or 1
     result.append(acculotion)# 0 or 1
