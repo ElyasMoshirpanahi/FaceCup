@@ -165,7 +165,9 @@ def detect(videoname):
 
     # Get the video properties
     frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    img_w = frame_width
     frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    img_h = frame_height
     fps = cap.get(cv2.CAP_PROP_FPS)
 
 
@@ -173,6 +175,7 @@ def detect(videoname):
 
     while True:
         ret, frame = cap.read()
+        image = frame
         multi_face = 0
 
 
@@ -276,10 +279,11 @@ def detect(videoname):
                 check_spoof = False
         
 
-
         #Video isn't spoof so we continue to do other tasks
         elif check_spoof == False and skip_video == False:
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            face_3d = []
+            face_2d = []
 
 ########################################### Head and Mouth Rotation #######################################|TODO:2
             results = face_mesh.process(frame_rgb)
@@ -384,7 +388,8 @@ def detect(videoname):
                                     face = torch.unsqueeze(face, dim=0).float()
                                     # Normalize face
                                     face = (face - 127.5) / 128.0
-                                    face = face.cuda()
+                                    if torch.cuda.is_available():
+                                        face = face.cuda()
 
                                     # Calculate face embeddings using InceptionResnetV1 model
                                     embeddings = resnet(face)
@@ -422,7 +427,7 @@ def detect(videoname):
                         faces = face_cascade.detectMultiScale(frame_rgb, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
 
                         # Loop through detected faces
-                            for (x, y, w, h) in faces:
+                        for (x, y, w, h) in faces:  
                             # Extract face region of interest
                                 face_roi = frame_rgb[y:y + h, x:x + w]
 
@@ -431,7 +436,7 @@ def detect(videoname):
 
                             # Check if wearing glasses
                                 if len(eyes) >= 2:
-                                glasses_count += 1
+                                    glasses_count += 1
 
                         for item in multi_face_result:
                             if item > 1:
@@ -482,18 +487,18 @@ def detect(videoname):
 
 
 
-    pritn(f"""
-    ====================={videoname}====================
-    spoof {spoof}
+    # print(f"""
+    # ====================={videoname}====================
+    # spoof {spoof}
 
-    multi_face : { multi_face}
+    # multi_face : { multi_face}
 
-    acculotion : {acculotion}
+    # acculotion : {acculotion}
 
-    multi_id : {multi_id }
+    # multi_id : {multi_id }
 
-    movements: { movements}
-    ===================================================""")
+    # movements: { movements}
+    # ===================================================""")
     return (spoof , multi_face , acculotion , multi_id , movements)
 
 def process(videoname):
@@ -507,7 +512,7 @@ def process(videoname):
     result.append(multi_face)# 0 or 1
     result.append(acculotion)# 0 or 1
     result.append(multi_id)  # 0 or 1
-
+    
 
     #Head rotations
     my_list = movements      #[0] * 15
