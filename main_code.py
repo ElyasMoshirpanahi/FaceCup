@@ -2,6 +2,7 @@ import numpy as np
 import video_process
 import pandas as pd
 import os
+from datetime import datetime as dt
 # from Merged_tasks import main
 import time
 from tqdm import tqdm
@@ -16,25 +17,11 @@ feature=np.zeros((lens,19))
 i=0
 
 
-<<<<<<< HEAD
-for video_name in tqdm(data):
-    #print(video_name)
-    # You should implement the video processing code in this section
+for video_name in tqdm(data):    # You should implement the video processing code in this section
     feature[i, :]=video_process.process(video_name,verbose=True)
     # main
     i = i + 1
 
-=======
-for video_name in data:
-    tic = time.time()
-    # print(f"Time started for video {tic}")
-    # You should implement the video processing code in this section
-    feature[i, :]=video_process.process(video_name)
-    print((feature[i, :]))
-    # main
-    i = i + 1
-    print(f"Time to process vidoe {video_name} was {time.time() - tic}")
->>>>>>> 2f4ca3856cb885e1e99b7e93abf0587b6b6a233b
 
     
 video_names_and_feature=np.hstack((video_names.reshape(lens,1),feature))

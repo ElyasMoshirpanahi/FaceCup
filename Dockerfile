@@ -1,9 +1,13 @@
+FROM tensorflow/tensorflow:2.12.0-gpu
 FROM python:3.8
 ENV PYTHONUNBUFFERED=1
 
 RUN rm -rf /tmp/FaceCup
-RUN apt-get update && apt-get install -y git 
-#RUN  apt-get install libgl1-mesa-glx
+
+RUN apt-get update && apt-get install -y git
+RUN apt-get install -y python3-opencv 
+RUN pip install opencv-python
+RUN pip --timeout=1000 install --no-cache-dir gdown
 
 RUN git clone https://github.com/ElyasMoshirpanahi/FaceCup.git /tmp/FaceCup
 
@@ -30,4 +34,3 @@ WORKDIR /liveness
 RUN pip --timeout=1000 install --no-cache-dir --upgrade -r requirements.txt
 
 CMD python run.py
-

@@ -457,7 +457,7 @@ def main(source=0,tfps = 3, mp_face_mesh=mp_face_mesh,
                     new_movement=9
                     
                 # Determine if the mouth is open or closed based on the distance
-                elif distance > 0.02:  # Adjust this threshold for your specific use case
+                elif distance > 0.03:  # Adjust this threshold for your specific use case
                     text = "MOUTH OPEN:5"
                     new_movement=5
                     
@@ -467,7 +467,7 @@ def main(source=0,tfps = 3, mp_face_mesh=mp_face_mesh,
                     text="FORWARD,CENTER"
                     #new_movement = 0
 
-                sleep(0.35)
+                #sleep(0.35)
                     #Spoof -> 0 1 
                 #######
                 # face occlusion
