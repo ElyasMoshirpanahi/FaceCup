@@ -68,13 +68,13 @@ eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml
 spoof_model = AntiSpoofPredict(device_id)
 image_cropper = CropImage()
 model_dir="./models/anti_spoof_models"
-
+occ_model_path = "./models/occlusion_detection_model.h5"
 
 mtcnn = MTCNN()
 resnet = InceptionResnetV1(pretrained='vggface2').eval()#Same person
 face_ids = set()
-model = load_model('./models/model.h5')#Check mask
-
+#model = load_model('./models/model.h5')#Check mask
+occlusion_detection_model  = load_model(occ_model_path)
 #=====================================Functions===============================#
 #Function  to preprocess the frame for spoof
 def preprocess_frame(frame, image_cropper, image_bbox, h_input, w_input, scale):
@@ -154,7 +154,6 @@ def detect(videoname,verbose=False):
     check_occlussion = True
 
     multi_checked    = False
-    occlusion_check  = False
     skip_video       = False
 
 
@@ -194,8 +193,7 @@ def detect(videoname,verbose=False):
             break
             #all other tasks remain  0 -> multi_face,acculotion,multi_id
             #return  final_result
- 
- ############################################## spoof detect ##############################################|TODO:1
+ #############################################  spoof detect  #############################################|TODO:1
         if check_spoof:
             if  index < spoof_frame_threshold:
                 # Preprocess the image
@@ -272,7 +270,7 @@ def detect(videoname,verbose=False):
 
             else:
                 check_spoof = False                 
- ########################################## Head and Mouth Rotation #######################################|TODO:2
+ #########################################  Head and Mouth Rotation  ######################################|TODO:2
         #Video isn't spoof so we continue to do other tasks
     
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -365,7 +363,7 @@ def detect(videoname,verbose=False):
                 
 
                     #OTHER OPERATIONS GO HERE!
- ########################################### multiface & multi id #########################################
+ ##########################################  multiface & multi id  ########################################
                 # Convert frame to RGB
                 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 # Detect faces in frame
@@ -403,83 +401,68 @@ def detect(videoname,verbose=False):
                             if face_id not in face_ids:
                                 # Add face ID to set
                                 face_ids.add(face_id)
- ############################################# Occlusion #################################################|TODO:Test my model
+ ###############################################   Occlusion  ################################################|TODO:Test my model
   ####################################   keras inception resnet model   ###################################
-                # frame = frame_rgb
+                frame = frame_rgb
 
 
-                # if occlusion_check == False and occlusion_frame_threshold > occlusion_frame:
-                #     #print("==========================CHECKING FOR OCCLUSION================================")
-
-                #     face_detection_results = face_detection.process(frame)
-                #     detection = face_detection_results.detections[0]
-                #     ih, iw, _ = frame.shape
-                #     boxR = detection.location_data.relative_bounding_box
-                #     # Get Absolute Bounding Box Positions
-                #     # (startX, startY) - Top Left Corner of Bounding Box
-                #     # (endX, endY)     - Bottom Right Corner of Bounding Box
-                #     (startX, startY, endX, endY) = (boxR.xmin, boxR.ymin, boxR.width, boxR.height) * np.array([iw, ih, iw, ih])
-                #     startX = max(0, int(startX))
-                #     startY = max(0, int(startY))
-                #     endX = min(iw - 1, int(startX + endX))
-                #     endY = min(ih - 1, int(startY + endY))
-
-                #     # Extract the face from the RGB Frame to pass into Mask Detection Model
-                #     face = frame[startY:endY, startX:endX]
-                #     face = cv2.resize(face, (224, 224))
-                #     face = img_to_array(face)
-                #     face = preprocess_input(face)
-                #     face = np.array([face], dtype='float32')
-
-                #     # Predict Mask or No Mask on the extracted RGB Face
-                #     preds = occlusion_detection_model.predict(face, batch_size=32,verbose=None)[0][0]
-                #     occlusion_frame = occlusion_frame+1
-                #     if preds >0.5:
-                #         final_result[3]=1
-                #         occlusion_check = True
-                    #label = "No Occlusion" if preds < 0.5 else "Occluded"
-                    # percentage = (1 - preds)  if label == "No Occlusion" else preds 
-
-                    # if label =="No Occlusion":
-                    #     no_occlusion.append((1 - preds))
+                if check_occlussion == True and occlusion_frame_threshold > occlusion_frame:
 
 
-                    # else:
-                    #     occlusion.append(preds)
+                    face_detection_results = face_detection.process(frame)
+                    detection = face_detection_results.detections[0]
+                    ih, iw, _ = frame.shape
+                    boxR = detection.location_data.relative_bounding_box
+                    # Get Absolute Bounding Box Positions
+                    # (startX, startY) - Top Left Corner of Bounding Box
+                    # (endX, endY)     - Bottom Right Corner of Bounding Box
+                    (startX, startY, endX, endY) = (boxR.xmin, boxR.ymin, boxR.width, boxR.height) * np.array([iw, ih, iw, ih])
+                    startX = max(0, int(startX))
+                    startY = max(0, int(startY))
+                    endX = min(iw - 1, int(startX + endX))
+                    endY = min(ih - 1, int(startY + endY))
 
+                    # Extract the face from the RGB Frame to pass into Mask Detection Model
+                    face = frame[startY:endY, startX:endX]
+                    face = cv2.resize(face, (224, 224))
+                    face = img_to_array(face)
+                    face = preprocess_input(face)
+                    face = np.array([face], dtype='float32')
 
-
-
-
+                    # Predict Mask or No Mask on the extracted RGB Face
+                    preds = occlusion_detection_model.predict(face, batch_size=32,verbose=None)[0][0]
+                    occlusion_frame = occlusion_frame+1
+                    if preds >0.5:
+                        final_result[3]=1
+                        check_occlussion = True
   ############################################ mask detection ############################################
                 # Preprocess frame
-                frame = frame_rgb #cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                frame = cv2.resize(frame, (224, 224))
-                frame = preprocess_input(frame)
+                # frame = frame_rgb #cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                # frame = cv2.resize(frame, (224, 224))
+                # frame = preprocess_input(frame)
 
-                # Predict mask probability
-                pred = model.predict(np.expand_dims(frame, axis=0),verbose=None)[0]#,verbose=None
-                mask_prob = pred[0]
-                no_mask_prob = pred[1]
+                # # Predict mask probability
+                # pred = model.predict(np.expand_dims(frame, axis=0),verbose=None)[0]#,verbose=None
+                # mask_prob = pred[0]
+                # no_mask_prob = pred[1]
 
-                # Check if wearing a mask
-                if mask_prob > no_mask_prob:
-                    mask_count += 1
-
+                # # Check if wearing a mask
+                # if mask_prob > no_mask_prob:
+                #     mask_count += 1
   ############################################### sunglasses ##############################################
-                faces = face_cascade.detectMultiScale(frame_rgb, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+                # faces = face_cascade.detectMultiScale(frame_rgb, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
 
-                # Loop through detected faces
-                for (x, y, w, h) in faces:
-                # Extract face region of interest
-                    face_roi = frame_rgb[y:y + h, x:x + w]
+                # # Loop through detected faces
+                # for (x, y, w, h) in faces:
+                # # Extract face region of interest
+                #     face_roi = frame_rgb[y:y + h, x:x + w]
 
-                # Detect eyes in face region
-                    eyes = eye_cascade.detectMultiScale(face_roi, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+                # # Detect eyes in face region
+                #     eyes = eye_cascade.detectMultiScale(face_roi, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
 
-                    # Check if wearing glasses
-                    if len(eyes) >= 2:
-                        glasses_count += 1
+                #     # Check if wearing glasses
+                #     if len(eyes) >= 2:
+                #         glasses_count += 1
 
 
                 #Multi face
@@ -495,7 +478,7 @@ def detect(videoname,verbose=False):
                 else:
                     final_result[3]=0
 
-                acculotion
+                #acculotion
                 if mask_count>0 and glasses_count>0:
                     final_result[2]=1
 
