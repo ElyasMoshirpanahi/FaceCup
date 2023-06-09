@@ -2,9 +2,11 @@
 
 
 #Need 2 files from google drive copied to models folder to run properly!
+Download each at :
 <br>
-https://drive.google.com/drive/folders/19TQxvYLXsEQc4dGGAaNslRNz0Y3Esced
-
+Vgg and model.h5 for Person reid and mask detection : https://drive.google.com/drive/folders/19TQxvYLXsEQc4dGGAaNslRNz0Y3Esced
+<br>
+Occlusion detection model at : https://drive.google.com/file/d/10EKrw08j1o8pWXWGXVMnyqbsrpKrjDsz/edit
 # Face cup competetion 2023
 
 ![alt text](https://mms.businesswire.com/media/20210406005123/en/869329/5/AdobeStock_397652837_IDEMIA_light.jpg)
