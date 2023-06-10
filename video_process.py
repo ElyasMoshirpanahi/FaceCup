@@ -442,30 +442,33 @@ def detect(videoname,verbose=False):
 
                     face_detection_results = face_detection.process(frame)
                     detection = face_detection_results.detections[0]
-                    ih, iw, _ = frame.shape
-                    boxR = detection.location_data.relative_bounding_box
-                    # Get Absolute Bounding Box Positions
-                    # (startX, startY) - Top Left Corner of Bounding Box
-                    # (endX, endY)     - Bottom Right Corner of Bounding Box
-                    (startX, startY, endX, endY) = (boxR.xmin, boxR.ymin, boxR.width, boxR.height) * np.array([iw, ih, iw, ih])
-                    startX = max(0, int(startX))
-                    startY = max(0, int(startY))
-                    endX = min(iw - 1, int(startX + endX))
-                    endY = min(ih - 1, int(startY + endY))
+                    if detection not None:
+                        ih, iw, _ = frame.shape
+                        boxR = detection.location_data.relative_bounding_box
+                        # Get Absolute Bounding Box Positions
+                        # (startX, startY) - Top Left Corner of Bounding Box
+                        # (endX, endY)     - Bottom Right Corner of Bounding Box
+                        (startX, startY, endX, endY) = (boxR.xmin, boxR.ymin, boxR.width, boxR.height) * np.array([iw, ih, iw, ih])
+                        startX = max(0, int(startX))
+                        startY = max(0, int(startY))
+                        endX = min(iw - 1, int(startX + endX))
+                        endY = min(ih - 1, int(startY + endY))
 
-                    # Extract the face from the RGB Frame to pass into Mask Detection Model
-                    face = frame[startY:endY, startX:endX]
-                    face = cv2.resize(face, (224, 224))
-                    face = img_to_array(face)
-                    face = preprocess_input(face)
-                    face = np.array([face], dtype='float32')
+                        # Extract the face from the RGB Frame to pass into Mask Detection Model
+                        face = frame[startY:endY, startX:endX]
+                        face = cv2.resize(face, (224, 224))
+                        face = img_to_array(face)
+                        face = preprocess_input(face)
+                        face = np.array([face], dtype='float32')
 
-                    # Predict Mask or No Mask on the extracted RGB Face
-                    preds = occlusion_detection_model.predict(face, batch_size=32,verbose=None)[0][0]
-                    occlusion_frame = occlusion_frame+1
-                    if preds >0.5:
-                        final_result[3]=1
-                        check_occlussion = True
+                        # Predict Mask or No Mask on the extracted RGB Face
+                        preds = occlusion_detection_model.predict(face, batch_size=32,verbose=None)[0][0]
+                        occlusion_frame = occlusion_frame+1
+                        if preds >0.5:
+                            final_result[3]=1
+                            check_occlussion = True
+                    else:
+                        final_result[3]=0
   ############################################ mask detection ############################################
                 # Preprocess frame
                 # frame = frame_rgb #cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
