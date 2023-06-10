@@ -34,7 +34,7 @@ warnings.filterwarnings('ignore')
 
 def download_file(file_id, output_path):
     try:
-        gdown.download(file_id, output_path, quiet=False)
+        gdown.download(id=file_id,output=output_path, quiet=False)
         print("File downloaded successfully!")
     except Exception as e:
         print(f"Error occurred while downloading the file: {e}")
@@ -53,7 +53,6 @@ device_id = 0
 
 gdown_lst = {"vggface2.pt":"1VijRF3CZhRHTd0ea8U4ZsxIkUMlZWmUX",
              "occlusion_detection_model.h5":"10EKrw08j1o8pWXWGXVMnyqbsrpKrjDsz"}
-
 
 
 #-------------------- Face Mesh/Detection  cv2 cascades setup --------------------#
@@ -87,20 +86,19 @@ spoof_model = AntiSpoofPredict(device_id)
 image_cropper = CropImage()
 model_dir="./models/anti_spoof_models"
 occ_model_path = "./models/occlusion_detection_model.h5"
-
+face_ids = set()
 
 try:
     mtcnn = MTCNN()
     resnet = InceptionResnetV1(pretrained='vggface2').eval()#Same person
-    face_ids = set()
-    #model = load_model('./models/model.h5')#Check mask
     occlusion_detection_model  = load_model(occ_model_path)
+    
 except Exception as e:
     print("Model files haven't been loaded correctly redownloading now")
     print(e.args)
     for k,v in gdown_lst.items():
         print(f"downloading {k}")
-        download_file(id=v,output_path=f"./models/{k}")  
+        download_file(file_id=v,output_path=f"./models/{k}")  
         print("Reloading models now...")
         mtcnn = MTCNN()
         resnet = InceptionResnetV1(pretrained='vggface2').eval()#Same person
