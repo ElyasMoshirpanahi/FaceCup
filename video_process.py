@@ -84,8 +84,8 @@ eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml
 #------------------------- model load ------------------------#
 spoof_model = AntiSpoofPredict(device_id)
 image_cropper = CropImage()
-model_dir=       os.getcwd() +  "models/anti_spoof_models"
-occ_model_path = os.getcwd() +  "models/occlusion_detection_model.h5"
+model_dir=       os.getcwd() +  "/models/anti_spoof_models"
+occ_model_path = os.getcwd() +  "/models/occlusion_detection_model.h5"
 face_ids = set()
 
 
