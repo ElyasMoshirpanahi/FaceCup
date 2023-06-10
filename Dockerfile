@@ -1,6 +1,7 @@
 FROM tensorflow/tensorflow:2.12.0-gpu
 FROM python:3.8
 ENV PYTHONUNBUFFERED=1
+
 RUN rm -rf /tmp/FaceCup
 
 RUN apt-get update && apt-get install -y git
@@ -17,9 +18,10 @@ RUN git pull origin master
 RUN mkdir /liveness
 
 RUN mv /tmp/FaceCup/* /liveness/
-RUN mkdir /liveness/input
 
-RUN mkdir /liveness/output
+#RUN mkdir /liveness/input
+#RUN mkdir /liveness/output
+
 RUN pip --timeout=1000 install --no-cache-dir gdown
 
 

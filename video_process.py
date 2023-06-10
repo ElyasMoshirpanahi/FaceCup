@@ -84,27 +84,15 @@ eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml
 #------------------------- model load ------------------------#
 spoof_model = AntiSpoofPredict(device_id)
 image_cropper = CropImage()
-model_dir="./models/anti_spoof_models"
-occ_model_path = "./models/occlusion_detection_model.h5"
+model_dir=       os.getcwd() +  "models/anti_spoof_models"
+occ_model_path = os.getcwd() +  "models/occlusion_detection_model.h5"
 face_ids = set()
 
-try:
-    mtcnn = MTCNN()
-    resnet = InceptionResnetV1(pretrained='vggface2').eval()#Same person
-    occlusion_detection_model  = load_model(occ_model_path)
-    
-except Exception as e:
-    print("Model files haven't been loaded correctly redownloading now")
-    print(e.args)
-    for k,v in gdown_lst.items():
-        print(f"downloading {k}")
-        download_file(file_id=v,output_path=f"./models/{k}")  
-        print("Reloading models now...")
-        mtcnn = MTCNN()
-        resnet = InceptionResnetV1(pretrained='vggface2').eval()#Same person
-        face_ids = set()
-        #model = load_model('./models/model.h5')#Check mask
-        occlusion_detection_model  = load_model(occ_model_path)
+
+mtcnn = MTCNN()
+resnet = InceptionResnetV1(pretrained='vggface2').eval()#Same person
+occlusion_detection_model  = load_model(occ_model_path)
+
 
 #=====================================Functions===============================#
 #Function  to preprocess the frame for spoof
