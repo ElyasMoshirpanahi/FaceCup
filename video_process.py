@@ -442,7 +442,7 @@ def detect(videoname,verbose=False):
 
                     face_detection_results = face_detection.process(frame)
                     detection = face_detection_results.detections[0]
-                    if detection not None:
+                    if detection != None:
                         ih, iw, _ = frame.shape
                         boxR = detection.location_data.relative_bounding_box
                         # Get Absolute Bounding Box Positions
