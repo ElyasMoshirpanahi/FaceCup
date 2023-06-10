@@ -17,7 +17,9 @@ RUN git pull origin master
 RUN mkdir /liveness
 
 RUN mv /tmp/FaceCup/* /liveness/
+RUN mkdir /liveness/input
 
+RUN mkdir /liveness/output
 RUN pip --timeout=1000 install --no-cache-dir gdown
 
 
