@@ -101,13 +101,12 @@ except Exception as e:
     for k,v in gdown_lst.items():
         print(f"downloading {k}")
         download_file(id=v,output_path=f"./models/{k}")  
-finally:
-    print("Reloading models now...")
-    mtcnn = MTCNN()
-    resnet = InceptionResnetV1(pretrained='vggface2').eval()#Same person
-    face_ids = set()
-    #model = load_model('./models/model.h5')#Check mask
-    occlusion_detection_model  = load_model(occ_model_path)
+        print("Reloading models now...")
+        mtcnn = MTCNN()
+        resnet = InceptionResnetV1(pretrained='vggface2').eval()#Same person
+        face_ids = set()
+        #model = load_model('./models/model.h5')#Check mask
+        occlusion_detection_model  = load_model(occ_model_path)
 
 #=====================================Functions===============================#
 #Function  to preprocess the frame for spoof
