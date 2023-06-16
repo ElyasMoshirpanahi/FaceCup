@@ -47,7 +47,7 @@ Create a folder named input and output and paste all your videos into input fold
 </ol>
 
 
-Intall requirements using :
+Install requirements using :
  ```
 pip install -r requirements.txt
 ```
