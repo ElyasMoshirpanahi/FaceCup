@@ -13,6 +13,15 @@ instructions below will guide you on how to set up and run the competition tasks
 
 ## Setup
 
+
+
+#### Input :
+a list of videos inside ./input folder
+
+#### output:
+A csv file within ./output folder containing a list of different detetions,which is explained bellow
+
+
 To run the Face Cup competition, follow the steps below:
 <ol>
 	<li>Ensure that you have access to Colab for testing and Docker for deployment.</li>
@@ -24,11 +33,32 @@ To run the Face Cup competition, follow the steps below:
  <li>
 	Occlusion detection model: <a href="https://drive.google.com/file/d/10EKrw08j1o8pWXWGXVMnyqbsrpKrjDsz/edit" alt="google drive link for the model">Google Drive link</a>
 </li>
+		 <li><b>Please note that you need this models downloaded and moved to models dir in order for the program to run properly</b></li>
 	 </ul>
 
 
- <li>Please note that you need this models downloaded and moved to models dir in order for the program to run properly</li>
+
+<li>
+	
+Create a folder named input and output and paste all your videos into input folder 
+
+</li>
+
 </ol>
+
+
+Intall requirements using :
+ ```
+pip install -r requirements.txt
+```
+
+
+To run the program using :
+
+```
+python run.py
+```
+
 
 ## Competition Details
 The Face Cup competition consists of the following tasks:
@@ -85,3 +115,43 @@ The system is capable of performing the following tasks:
 <li>Same person verification: [✓]</li>
 <li>Face occlusion detection: [✓]</li>
 </ul> 
+
+
+
+## Optimization and Evaluation Metrics
+
+
+The following optimizations can be implemented:
+<ul>
+<li>Simple Deploy Docker [✓]</li>
+<li>Change Code Architecture [✓]</li>
+<li>Change Code Blocks [✓]</li>
+<li>Set Frame [✓]</li>
+<li>Change Model [✓]</li>
+</ul>
+
+By following these instructions and using the provided models, you can participate in the Face Cup competition and evaluate your facial recognition system's performance against the specified tasks.
+
+
+The evaluation metrics for the competition tasks are as follows:
+<ul>
+<li>Scores: 0.3 (Spoof), 0.2 (Multi-Faces), 0.2 (Occlusion), 0.1 (Multi-Id), 0.2 (Movements [6:20])</li>
+<li>P_time = 20 * (1 - runtime/180)</li>
+<li>Accuracy = 80 * (avg(modul_scores))</li>
+</ul>
+
+
+
+
+## About Us
+We as Retroteam were able to compete and achieve  4th in this compettion among  more than 300 teams, with an accuracy of 98 percent and 48 minutes of runtime processing 400 videos.
+This competition was originally held by nextra startup
+
+
+## Contact
+Feel free to contact us via email or connect with us on linkedin.
+
+- Elyas Moshirpanahi --- [Linkedin](https://www.linkedin.com/in/ElyasMoshirpanahi1997), [Github](https://github.com/ElyasMoshirpanahi), [Email](mailto:elyasmoshirpanahe1376@gmail.com)
+- Pourya Bahmanyar --- [Linkedin](https://www.linkedin.com/in/pouria-bahmanyar-20b2201b8/), [Github](https://github.com/pouria-bahmanyar), [Email](mailto:pooriabahman@gmail.com)
+
+
