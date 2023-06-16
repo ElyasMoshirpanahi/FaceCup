@@ -3,7 +3,7 @@
 
 
 ![alt text](https://mms.businesswire.com/media/20210406005123/en/869329/5/AdobeStock_397652837_IDEMIA_light.jpg)
-![Uploading Face-Cup_Animation_1.gif…](https://facecup.ir/wp-content/uploads/2022/12/Face-Cup_Animation_1.gif)
+![alt text](https://facecup.ir/wp-content/uploads/2022/12/Face-Cup_Animation_1.gif)
 
 This documentation provides an overview of the Face Cup competition and its seven tasks for facial recognition based on the FRVT (Facial Recognition Vendor Test) standard. The 
 
