@@ -65,46 +65,20 @@ The Face Cup competition consists of the following tasks:
 
 
 ### Task 1: Spoof Detection
-<ul>
-<li>Run limited:</li>
-<li>Spoof: 0 - 1 [✓]</li>
-</ul>
+- in this part of the competition we used a model to detect if a face in front of the camera is spoof or real, which means the model checks if there is a real person in front of the camera or an image of a person
 
 ### Task 2: Face Occlusion Detection
-<ul>
-<li>Run in Loop:</li>
-<li>Face occlusion: 0 - 1 [✓]</li>
-</ul>
-
+- in this part of the competition we had to detect if a person in front of a camera is wearing sunglass or mask
 ### Task 3: Multi-Face Identification
-<ul>
-<li>Run in Loop:</li>
-<li>Multi-face ID: 0 - 1 [✓]</li>
-</ul>
-
+- this task was designed to detect the number of faces in front of a camera
 
 ### Task 4: Mouth and Head Movement Detection
-
-<ul>
-<li>Run in Loop:</li>
-<li>Mouth and head movement: [✓]</li>
-</ul>
+- this task, which was an active task, was done to detect different movement of a head, such as turning thr face to left, right, up and down, and movement of mouth
 
 ### Task 5: Reid Verification
+- in this part of the competition, the task was detecting the change in ID of a face, which means we had to detect if a face in front of camera has changed in a frame or not.
 
-<ul>
-<li>Run in Loop:</li>
-<li>Person Reid: 0 - 1 [✓]</li>
-</ul>
-
-### Task 6: Multi-Identity Recognition
-
-<ul>
-<li>Run in Loop:</li>
-<li>Multi ID: 0 - 1 [TEST]</li>
-</ul>
-
-### Task 7: Capabilities
+### Task 6: Capabilities
 
 <ul>
 The system is capable of performing the following tasks:
@@ -152,6 +126,6 @@ This competition was originally held by nextra startup
 Feel free to contact us via email or connect with us on linkedin.
 
 - Elyas Moshirpanahi --- [Linkedin](https://www.linkedin.com/in/ElyasMoshirpanahi1997), [Github](https://github.com/ElyasMoshirpanahi), [Email](mailto:elyasmoshirpanahe1376@gmail.com)
-- Pourya Bahmanyar --- [Linkedin](https://www.linkedin.com/in/pouria-bahmanyar-20b2201b8/), [Github](https://github.com/pouria-bahmanyar), [Email](mailto:pooriabahman@gmail.com)
+- Pouria Bahmanyar --- [Linkedin](https://www.linkedin.com/in/pouria-bahmanyar-20b2201b8/), [Github](https://github.com/pouria-bahmanyar), [Email](mailto:pouria.bahmanyar2000@gmail.com)
 
 
